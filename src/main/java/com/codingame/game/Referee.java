@@ -9,8 +9,10 @@ import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
 import com.codingame.gameengine.core.AbstractReferee;
 import com.codingame.gameengine.core.GameManager;
 import com.codingame.gameengine.core.MultiplayerGameManager;
+import com.codingame.gameengine.module.endscreen.EndScreenModule;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Sprite;
+import com.codingame.gameengine.module.entities.Circle;
 import com.codingame.gameengine.module.entities.Text;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -19,6 +21,7 @@ public class Referee extends AbstractReferee {
     @Inject private MultiplayerGameManager<Player> gameManager;
     @Inject private GraphicEntityModule graphicEntityModule;
     @Inject private Provider<TicTacToeGrid> ticTacToeGridProvider;
+    @Inject private EndScreenModule endScreenModule;
 
     final private int boardSize = 9;
     private TicTacToeGrid masterGrid;
@@ -26,6 +29,7 @@ public class Referee extends AbstractReferee {
     private Action lastAction = null;
     private List<Action> validActions;
     private Random random;
+    private Text[] score;
     
     @Override
     public void init() {
@@ -35,8 +39,9 @@ public class Referee extends AbstractReferee {
         drawHud();
         drawGrids();
 
-        gameManager.setFrameDuration(600);
+        gameManager.setFrameDuration(500);
         gameManager.setMaxTurns(9 * 9);
+        gameManager.setTurnMaxTime(100);
         validActions = getValidActions();
     }
 
@@ -62,9 +67,10 @@ public class Referee extends AbstractReferee {
     }
     
     private void drawHud() {
+    	score = new Text[2];
         for (Player player : gameManager.getPlayers()) {
             int x = player.getIndex() == 0 ? 280 : 1920 - 280;
-            int y = 520;
+            int y = 500;
 
             graphicEntityModule
                     .createRectangle()
@@ -91,6 +97,16 @@ public class Referee extends AbstractReferee {
                     .setFontSize(40)
                     .setFillColor(0xffffff)
                     .setAnchor(0.5);
+            
+            Circle scoreCircle = graphicEntityModule.createCircle().setRadius(50).setX(x).setY(y + 220).setFillColor(0x34495e);
+            
+            score[player.getIndex()] = graphicEntityModule.createText(Integer.toString(player.getScore()))
+                    .setX(x)
+                    .setY(y + 220)
+                    .setZIndex(20)
+                    .setFontSize(50)
+                    .setFillColor(0xbdc3c7)
+                    .setAnchor(0.5);
 
             Sprite avatar = graphicEntityModule.createSprite()
                     .setX(x)
@@ -101,7 +117,7 @@ public class Referee extends AbstractReferee {
                     .setBaseHeight(116)
                     .setBaseWidth(116);
 
-            player.hud = graphicEntityModule.createGroup(text, avatar);
+            player.hud = graphicEntityModule.createGroup(text, score[player.getIndex()], avatar);
         }
     }
 
@@ -121,8 +137,6 @@ public class Referee extends AbstractReferee {
     }
 
     private void setWinner(Player player) {
-        gameManager.addToGameSummary(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
-        player.setScore(10);
         endGame();
     }
 
@@ -155,9 +169,18 @@ public class Referee extends AbstractReferee {
             int[] scores = masterGrid.play(action);
             gameManager.addToGameSummary(String.format("{ Score %s -> %d }", gameManager.getPlayer(0).getNicknameToken(), scores[1]));
             gameManager.addToGameSummary(String.format("{ Score %s -> %d }", gameManager.getPlayer(1).getNicknameToken(), scores[2]));
+            
+            gameManager.getPlayer(0).setScore(scores[1]);
+            gameManager.getPlayer(1).setScore(scores[2]);
+            
+            gameManager.getPlayer(player.getIndex()).hud.remove(score[player.getIndex()]);
+            score[player.getIndex()].setText(Integer.toString(player.getScore()));
+            gameManager.getPlayer(player.getIndex()).hud.add(score[player.getIndex()]);
+            
             if (scores[0] == 0) {
             	if(scores[1] > scores[2]) {
             		setWinner(gameManager.getPlayer(0));
+            		
             	}else {
             		setWinner(gameManager.getPlayer(1));
             	}
@@ -185,14 +208,23 @@ public class Referee extends AbstractReferee {
 
     private void endGame() {
         gameManager.endGame();
+        
+        int[] scores = { gameManager.getPlayer(0).getScore(), gameManager.getPlayer(1).getScore() };
+        String[] text = new String[2];
+        if(scores[0] > scores[1]) {
+            gameManager.addToGameSummary(gameManager.formatErrorMessage(gameManager.getPlayer(0).getNicknameToken() + " won"));
+            gameManager.addTooltip(gameManager.getPlayer(0), gameManager.getPlayer(0).getNicknameToken() + " won");
+            text[0] = "Won";
+            text[1] = "Lost";
+            gameManager.getPlayer(1).hud.setAlpha(0.3);
+        } else {
+            gameManager.addToGameSummary(gameManager.formatErrorMessage(gameManager.getPlayer(1).getNicknameToken() + " won"));
+            gameManager.addTooltip(gameManager.getPlayer(1), gameManager.getPlayer(1).getNicknameToken() + " won");
+            text[0] = "Lost";
+            text[1] = "Won";
+            gameManager.getPlayer(0).hud.setAlpha(0.3);
+        }
 
-        Player p0 = gameManager.getPlayers().get(0);
-        Player p1 = gameManager.getPlayers().get(1);
-        if (p0.getScore() > p1.getScore()) {
-            p1.hud.setAlpha(0.3);
-        }
-        if (p0.getScore() < p1.getScore()) {
-            p0.hud.setAlpha(0.3);
-        }
+        endScreenModule.setScores(scores, text);
     }
 }

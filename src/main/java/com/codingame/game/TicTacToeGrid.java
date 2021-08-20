@@ -76,8 +76,13 @@ public class TicTacToeGrid {
         			cnt[grid[i][j]] += 1;
         		}
         		
-        		// diag check
+        		// diag-right check
         		if(j + 2 < boardSize && i + 2 < boardSize && grid[i][j] == grid[i + 1][j + 1] && grid[i + 1][j + 1] == grid[i + 2][j + 2]) {
+        			cnt[grid[i][j]] += 1;
+        		}
+        		
+        		// diag-left check
+        		if(j - 2 >= 0 && i + 2 < boardSize && grid[i][j] == grid[i + 1][j - 1] && grid[i + 1][j - 1] == grid[i + 2][j - 2]) {
         			cnt[grid[i][j]] += 1;
         		}
         	}

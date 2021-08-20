@@ -6,7 +6,7 @@
        <span>The Goal</span> 
      </h2> 
      <div class="statement-goal-content"> 
-       Tic-tac-toe is a turn-based game, where the objective is to get three in a row, but in this game, player who have greater count of three in a row(vertically, horizontally or diagonally), wins the game.
+       Tic-tac-toe is a turn-based game, where the objective is to get three in a row, but in this game, player who have greater count of three in a row(vertically, horizontally or diagonally), when the 9*9 board is full,wins the game.
      </div>
    </div> 
    <!-- RULES --> 
@@ -15,10 +15,23 @@
        <span class="icon icon-rules">&nbsp;</span> 
        <span>Rules</span> 
      </h2> 
-     <div><div class="statement-rules-content">The game is played on a 9x9 grid. You must output the coordinate of the cell you want to mark. The player player who have greater count of three in a row(vertically, horizontally or diagonally), wins the game.</div> 
-     </div> 
+     <div><div class="statement-rules-content">The game is played on a 9x9 grid. You must output the coordinate of the cell you want to mark. The player who have greater count of three in a row(vertically, horizontally or diagonally), when the 9*9 board is full, wins the game.</div> 
+     </div>
+   </div>
+   <!-- Victory conditions -->
+    <div class="statement-victory-conditions">
+      <div class="icon victory"></div>
+      <div class="blk">
+        <div class="title">Victory Conditions</div>
+        <div class="text">
+          <ul style="padding-top:0; padding-bottom: 0;">
+            The winner is the player with the most <b>3 in a row</b>.
+          </ul>
+        </div>
+      </div>
+    </div>
      <!-- PROTOCOL --> 
-      <div class="statement-section statement-protocol"> 
+    <div class="statement-section statement-protocol"> 
         <h2> 
           <span class="icon icon-protocol">&nbsp;</span> 
           <span>Game Input</span> 
@@ -35,7 +48,13 @@
         <div class="blk"> 
   <div class="title">Output for one game turn</div> 
           <div class="text"><span class="statement-lineno">Line 1:</span> 2 space separated integers <var>row</var> and <var>col</var>.</div> 
-        </div> 
+        </div>
+        <div class="blk">
+          <div class="title">Constraints</div>
+          <div class="text">
+            Response time per turn ≤ <const>100</const>ms
+          </div>
+        </div>
       </div>
    </div>
 </div>
