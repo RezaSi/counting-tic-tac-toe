@@ -23,7 +23,7 @@ public class Referee extends AbstractReferee {
     @Inject private Provider<TicTacToeGrid> ticTacToeGridProvider;
     @Inject private EndScreenModule endScreenModule;
 
-    final private int boardSize = 9;
+    final private int boardSize = 10;
     private TicTacToeGrid masterGrid;
     private TicTacToeGrid[][] smallGrids;
     private Action lastAction = null;
@@ -40,7 +40,7 @@ public class Referee extends AbstractReferee {
         drawGrids();
 
         gameManager.setFrameDuration(500);
-        gameManager.setMaxTurns(9 * 9);
+        gameManager.setMaxTurns(boardSize * boardSize);
         gameManager.setTurnMaxTime(100);
         validActions = getValidActions();
     }
@@ -52,11 +52,11 @@ public class Referee extends AbstractReferee {
     }
 
     private void drawGrids() {
-        int bigCellSize = 75;
+        int bigCellSize = 67;
         int bigOrigX = (int) Math.round(1920 / 2 - 300);
         int bigOrigY = (int) Math.round(1080 / 2 - 300);
         masterGrid = ticTacToeGridProvider.get();
-        masterGrid.draw(bigOrigX, bigOrigY, bigCellSize, 5, 0xf9b700);
+        masterGrid.draw(bigOrigX, bigOrigY, bigCellSize, 5, 0x27ae60);
 
         graphicEntityModule
             .createSprite()
@@ -214,15 +214,20 @@ public class Referee extends AbstractReferee {
         if(scores[0] > scores[1]) {
             gameManager.addToGameSummary(gameManager.formatErrorMessage(gameManager.getPlayer(0).getNicknameToken() + " won"));
             gameManager.addTooltip(gameManager.getPlayer(0), gameManager.getPlayer(0).getNicknameToken() + " won");
-            text[0] = "Won";
-            text[1] = "Lost";
+            text[0] = "Won ( " + String.valueOf(scores[0]) + " )";
+            text[1] = "Lost ( " + String.valueOf(scores[1]) + " )";
             gameManager.getPlayer(1).hud.setAlpha(0.3);
-        } else {
+        } else if(scores[0] < scores[1]) {
             gameManager.addToGameSummary(gameManager.formatErrorMessage(gameManager.getPlayer(1).getNicknameToken() + " won"));
             gameManager.addTooltip(gameManager.getPlayer(1), gameManager.getPlayer(1).getNicknameToken() + " won");
-            text[0] = "Lost";
-            text[1] = "Won";
+            text[0] = "Lost ( " + String.valueOf(scores[0]) + " )";
+            text[1] = "Won ( " + String.valueOf(scores[1]) + " )";
             gameManager.getPlayer(0).hud.setAlpha(0.3);
+        } else {
+        	gameManager.addToGameSummary(gameManager.formatErrorMessage("Game is drawn"));
+        	gameManager.addTooltip(gameManager.getPlayer(1), "Draw");
+            text[0] = "Draw ( " + String.valueOf(scores[0]) + " )";
+            text[1] = "Draw ( " + String.valueOf(scores[1]) + " )";
         }
 
         endScreenModule.setScores(scores, text);

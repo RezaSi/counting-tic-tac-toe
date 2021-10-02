@@ -17,7 +17,7 @@ public class TicTacToeGrid {
 
     private Group entity;
     
-    final private int boardSize = 9;
+    final private int boardSize = 10;
 
     private int origX;
     private int origY;
@@ -97,10 +97,10 @@ public class TicTacToeGrid {
         this.cellSize = cellSize;
         this.entity = graphicEntityModule.createGroup();
 
-        double xs[] = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8};
-        double x2s[] = new double[] { 8, 8, 8, 8, 8, 8, 8, 8, 0, 1, 2, 3, 4, 5, 6, 7 };
-        double ys[] = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0 };
-        double y2s[] = new double[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8, 8, 8, 8, 8 };
+        double xs[] = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        double x2s[] = new double[] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+        double ys[] = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        double y2s[] = new double[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9 };
 
         for (int i = 0; i < xs.length; ++i) {
             Line line = graphicEntityModule.createLine()

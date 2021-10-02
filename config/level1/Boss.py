@@ -2,10 +2,30 @@ import sys
 import math
 import random
 
-table = []
-for i in range(9):
-    table.append([0] * 9)
+# Get 3 cells in a row!
 
+BOARD_SIZE = 10
+
+table = []
+for i in range(BOARD_SIZE):
+    table.append([0] * BOARD_SIZE)
+
+def dist(a, b):
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+def best_move(valid_actions):
+    bm = (-1, -1)
+    bm_score = 10000000
+    for action in valid_actions:
+        res = dist((action[0], action[1]), (4, 4))
+        for i in range(9):
+            for j in range(9):
+                if table[i][j] == 1:
+                    res += dist((i, j), action)
+        if res < bm_score:
+            bm_score = res
+            bm = action
+    return bm
 # game loop
 while True:
     # opponent_row: The coordinates of your opponent's last move
@@ -23,6 +43,6 @@ while True:
     # To debug: print("Debug messages...", file=sys.stderr, flush=True)
 
     # <row> <column>
-    random_move = random.choice(valid_actions)
-    table[random_move[0]][random_move[1]] = 1
-    print(f"{random_move[0]} {random_move[1]}")
+    bm = best_move(valid_actions)
+    table[bm[0]][bm[1]] = 1
+    print(f"{bm[0]} {bm[1]}")
