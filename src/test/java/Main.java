@@ -9,11 +9,11 @@ public class Main {
         MultiplayerGameRunner gameRunner = new MultiplayerGameRunner();
         gameRunner.setLeagueLevel(2);
         gameRunner.addAgent(
-        		BOSS_WOOD2,             
+        		BOSS_WOOD1,             
         		"Reza",
                 "https://www.jea.com/cdn/images/avatar/avatar-alt.svg");
         gameRunner.addAgent(
-        		BOSS_WOOD1,
+        		Player1.class,
                 "Hamid",
                 "https://www.jea.com/cdn/images/avatar/avatar-alt.svg");
         
