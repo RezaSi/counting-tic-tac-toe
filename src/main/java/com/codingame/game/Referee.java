@@ -45,6 +45,7 @@ public class Referee extends AbstractReferee {
         gameManager.setMaxTurns(2 * boardSize * boardSize);
         gameManager.setTurnMaxTime(100);
         validActions = getValidActions();
+        lastAction = null;
         reset = false;
     }
 
