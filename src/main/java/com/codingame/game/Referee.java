@@ -30,6 +30,8 @@ public class Referee extends AbstractReferee {
     private List<Action> validActions;
     private Random random;
     private Text[] score;
+    private boolean reset;
+    private int[] roundOneScores = {0, 0};
     
     @Override
     public void init() {
@@ -40,9 +42,10 @@ public class Referee extends AbstractReferee {
         drawGrids();
 
         gameManager.setFrameDuration(500);
-        gameManager.setMaxTurns(boardSize * boardSize);
+        gameManager.setMaxTurns(2 * boardSize * boardSize);
         gameManager.setTurnMaxTime(100);
         validActions = getValidActions();
+        reset = false;
     }
 
     private void drawBackground() {
@@ -137,7 +140,7 @@ public class Referee extends AbstractReferee {
     }
 
     private void setWinner(Player player) {
-        endGame();
+        endGame(true);
     }
 
     private List<Action> getValidActions() {
@@ -149,7 +152,8 @@ public class Referee extends AbstractReferee {
 
     @Override
     public void gameTurn(int turn) {
-        Player player = gameManager.getPlayer(turn % gameManager.getPlayerCount());
+    	int resetVal = reset? 1 : 0;
+        Player player = gameManager.getPlayer((turn + resetVal) % gameManager.getPlayerCount());
         
         sendInputs(player, validActions);
         player.execute();
@@ -170,45 +174,41 @@ public class Referee extends AbstractReferee {
             gameManager.addToGameSummary(String.format("{ Score %s -> %d }", gameManager.getPlayer(0).getNicknameToken(), scores[1]));
             gameManager.addToGameSummary(String.format("{ Score %s -> %d }", gameManager.getPlayer(1).getNicknameToken(), scores[2]));
             
-            gameManager.getPlayer(0).setScore(scores[1]);
-            gameManager.getPlayer(1).setScore(scores[2]);
+            gameManager.getPlayer(0).setScore(roundOneScores[0] + scores[1]);
+            gameManager.getPlayer(1).setScore(roundOneScores[1] + scores[2]);
             
             gameManager.getPlayer(player.getIndex()).hud.remove(score[player.getIndex()]);
             score[player.getIndex()].setText(Integer.toString(player.getScore()));
             gameManager.getPlayer(player.getIndex()).hud.add(score[player.getIndex()]);
-            
-            if (scores[0] == 0) {
-            	if(scores[1] > scores[2]) {
-            		setWinner(gameManager.getPlayer(0));
-            		
-            	}else {
-            		setWinner(gameManager.getPlayer(1));
-            	}
-            }
 
             validActions = getValidActions();
-            if (validActions.isEmpty()) {
-                endGame();
+            if (validActions.isEmpty() && reset) {
+            	endGame(true);
+            } else if(validActions.isEmpty() && !reset) {
+            	gameManager.addToGameSummary("We Need Reset");
+            	endGame(false);
+                roundOneScores[0] = scores[1];
+                roundOneScores[1] = scores[2];
+                init();
+                reset = true;
             }
         } catch (NumberFormatException e) {
             player.deactivate("Wrong output!");
             player.setScore(-1);
-            endGame();
+            endGame(true);
         } catch (TimeoutException e) {
             gameManager.addToGameSummary(GameManager.formatErrorMessage(player.getNicknameToken() + " timeout!"));
             player.deactivate(player.getNicknameToken() + " timeout!");
             player.setScore(-1);
-            endGame();
+            endGame(true);
         } catch (InvalidAction e) {
             player.deactivate(e.getMessage());
             player.setScore(-1);
-            endGame();
+            endGame(true);
         }
     }
 
-    private void endGame() {
-        gameManager.endGame();
-        
+    private void endGame(boolean gameManagerEnd) {
         int[] scores = { gameManager.getPlayer(0).getScore(), gameManager.getPlayer(1).getScore() };
         String[] text = new String[2];
         if(scores[0] > scores[1]) {
@@ -229,7 +229,13 @@ public class Referee extends AbstractReferee {
             text[0] = "Draw ( " + String.valueOf(scores[0]) + " )";
             text[1] = "Draw ( " + String.valueOf(scores[1]) + " )";
         }
-
-        endScreenModule.setScores(scores, text);
+        
+        
+        if(gameManagerEnd) {
+        	endScreenModule.setScores(scores, text);
+        	gameManager.endGame();
+        }else {
+            endScreenModule.setScores(scores, text);
+        }
     }
 }
